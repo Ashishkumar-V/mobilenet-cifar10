@@ -105,12 +105,7 @@ pdf.cell(0, 12, 'CS6886W - Systems Engineering for Deep Learning', align='C', ne
 pdf.set_font('Helvetica', 'B', 15)
 pdf.cell(0, 10, 'Assignment 2: MobileNet-v2 with Custom Quantization', align='C', new_x='LMARGIN', new_y='NEXT')
 pdf.ln(10)
-pdf.set_font('Helvetica', '', 11)
-pdf.cell(0, 7, 'Computer Science and Engineering Department', align='C', new_x='LMARGIN', new_y='NEXT')
-pdf.cell(0, 7, 'Indian Institute of Technology Madras', align='C', new_x='LMARGIN', new_y='NEXT')
-pdf.ln(10)
 pdf.set_font('Helvetica', 'B', 11)
-pdf.cell(0, 7, 'Student: Ashish Kumar V', align='C', new_x='LMARGIN', new_y='NEXT')
 pdf.cell(0, 7, 'Roll No: CS25M505', align='C', new_x='LMARGIN', new_y='NEXT')
 pdf.ln(15)
 pdf.set_font('Helvetica', 'B', 11)
@@ -517,7 +512,6 @@ pdf.body(
 )
 
 # ── Q5: Reproducibility ───────────────────────────────────────────────────────
-pdf.add_page()
 pdf.section('Question 5 - Reproducibility and Repository  (10 points)')
 
 pdf.section('Q5(a) - Codebase Structure', level=2)
