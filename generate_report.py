@@ -119,18 +119,18 @@ pdf.set_draw_color(100, 130, 200)
 pdf.rect(pdf.l_margin, pdf.get_y(), pdf.epw, 55, 'DF')
 pdf.set_y(pdf.get_y() + 3)
 pdf.set_font('Helvetica', 'B', 10)
-pdf.cell(0, 6, 'Key Results Summary', align='C', new_x='LMARGIN', new_y='NEXT')
+pdf.cell(0, 6, 'Summary', align='C', new_x='LMARGIN', new_y='NEXT')
 pdf.set_font('Helvetica', '', 9)
 pdf.ln(1)
 summary_lines = [
-    ('Baseline test accuracy (no compression)',  '100% (overfit - see Q1c note)'),
-    ('Model size (original, float32)',           '15.37 MB  (8.95 MB weights + 6.42 MB activations)'),
-    ('Best compression ratio (model)',           '4.00x  (8-bit weight + 8-bit activation)'),
-    ('Best compression ratio (weights only)',    '4.00x  (8-bit or below)'),
-    ('Best compression ratio (activations)',     '4.00x  (8-bit)'),
-    ('Final quantized model size (8-bit)',        '3.84 MB'),
-    ('Storage overhead (scale + zero_point)',    '848 bytes  (106 layers x 8 bytes each)'),
-    ('Quantization method',                      'Post-Training Quantization, uniform asymmetric'),
+    ('Baseline test accuracy (no compression)',  '100% (note: overfit due to limited data - see Q1c)'),
+    ('Original model size (float32)',            '15.37 MB  (8.95 MB weights + 6.42 MB activations)'),
+    ('Best model compression ratio',            '4.00x  (8-bit weight + 8-bit activation)'),
+    ('Best weight compression ratio',           '4.00x  (8-bit)'),
+    ('Best activation compression ratio',       '4.00x  (8-bit)'),
+    ('Quantized model size (8-bit)',             '3.84 MB'),
+    ('Storage overhead',                        '848 bytes  (scale + zero_point per layer)'),
+    ('Method',                                  'Post-Training Quantization (PTQ), uniform asymmetric'),
 ]
 for k, v in summary_lines:
     pdf.set_x(pdf.l_margin + 5)
@@ -144,7 +144,7 @@ pdf.set_draw_color(0, 0, 0)
 
 # ── Q1: Training Baseline ─────────────────────────────────────────────────────
 pdf.add_page()
-pdf.section('Question 1 - Training Baseline  (20 points)')
+pdf.section('Question 1 - Training Baseline')
 
 pdf.section('Q1(a) - CIFAR-10 Data Preparation and Augmentation', level=2)
 pdf.body(
@@ -231,17 +231,16 @@ pdf.body(
 
 # ── Q2: Compression Implementation ───────────────────────────────────────────
 pdf.add_page()
-pdf.section('Question 2 - Model Compression Implementation  (30 points)')
+pdf.section('Question 2 - Model Compression Implementation')
 
 pdf.section('Q2(a) - Compression Method Design', level=2)
 pdf.body(
-    'We implement Post-Training Quantization (PTQ) with uniform asymmetric quantization '
-    'written entirely from scratch (zero use of compression APIs or libraries). '
-    'PTQ was chosen because it requires no retraining; the already-trained float32 model '
-    'is compressed in one pass.'
+    'I implemented Post-Training Quantization (PTQ) using uniform asymmetric quantization '
+    'without using any compression library or API. PTQ was chosen since it does not require '
+    'retraining - the trained float32 model is compressed in a single pass.'
 )
 
-pdf.body('Core quantization formula (uniform asymmetric):')
+pdf.body('Quantization formula:')
 pdf.set_font('Courier', '', 9)
 pdf.set_fill_color(248, 248, 248)
 formula_lines = [
@@ -263,17 +262,15 @@ pdf.body(
     'asymmetric distribution) uniformly without special casing.'
 )
 
-pdf.body('Two-stage compression pipeline:')
+pdf.body('The compression has two steps:')
 stages = [
-    ('Stage 1 - Weight quantization (quantize_weights())',
-     'All Conv2d and Linear weight tensors are quantized in-place. The original float32 weights '
-     'are replaced with their dequantized approximations. This simulates the effect of storing '
-     'weights at reduced precision while keeping the inference path in float32.'),
-    ('Stage 2 - Activation quantization (ActivationQuantizer)',
-     'First, a calibration pass runs 20 mini-batches through the model collecting per-layer '
-     'activation min/max statistics. Then, forward hooks are registered on each Conv2d/Linear/'
-     'ReLU6 module. During inference each hook quantizes-then-dequantizes the layer output, '
-     'simulating low-bit activation storage.'),
+    ('Step 1 - Weight quantization',
+     'All Conv2d and Linear weight tensors are quantized in-place. The float32 weights '
+     'are replaced with dequantized approximations, simulating low-bit weight storage.'),
+    ('Step 2 - Activation quantization',
+     'A calibration pass over 20 mini-batches collects per-layer activation min/max statistics. '
+     'Forward hooks are then registered on Conv2d/Linear/ReLU6 modules. During inference, '
+     'each hook quantizes and dequantizes the layer output to simulate low-bit activation storage.'),
 ]
 for title, desc in stages:
     pdf.set_font('Helvetica', 'B', 10)
@@ -512,10 +509,10 @@ pdf.body(
 )
 
 # ── Q5: Reproducibility ───────────────────────────────────────────────────────
-pdf.section('Question 5 - Reproducibility and Repository  (10 points)')
+pdf.section('Question 5 - Reproducibility and Repository')
 
 pdf.section('Q5(a) - Codebase Structure', level=2)
-pdf.body('The repository is fully modular with clear separation of concerns:')
+pdf.body('The code is split into separate files, each with a single responsibility:')
 files = [
     ('model.py',    'MobileNet-v2 architecture adapted for CIFAR-10 (32x32 input)'),
     ('dataset.py',  'CIFAR-10 data loading, augmentation, and 45k/5k/10k splits'),
