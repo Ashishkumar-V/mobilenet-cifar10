@@ -599,6 +599,21 @@ pdf.body(
     'mobilenet-cifar10 and mobilenet-cifar10-compression respectively.'
 )
 
+# ── References ───────────────────────────────────────────────────────────────
+pdf.section('References')
+refs = [
+    '[1] PyTorch MobileNet-v2 reference implementation:\n'
+    '    https://github.com/pytorch/vision/blob/main/torchvision/models/mobilenetv2.py',
+    '[2] Template quantization repository for this assignment (VGG16 baseline, adapted to MobileNet-v2):\n'
+    '    https://github.com/DextroLaev/CS6886-Sys_for_dl-Assignment3',
+    '[3] Sandler et al., "MobileNetV2: Inverted Residuals and Linear Bottlenecks", CVPR 2018.',
+]
+for ref in refs:
+    pdf.set_font('Helvetica', '', 10)
+    pdf.set_x(pdf.l_margin)
+    pdf.multi_cell(pdf.epw, 5.5, ref)
+    pdf.ln(2)
+
 # ── Save ─────────────────────────────────────────────────────────────────────
 out_path = './report_assets/CS25M505_A2_Report.pdf'
 pdf.output(out_path)
