@@ -69,6 +69,9 @@ class PDF(FPDF):
         if not os.path.exists(path):
             self.body(f'[Figure not available: {path}]')
             return
+        # Add page break if image won't fit on current page
+        if self.will_page_break(h + 10):
+            self.add_page()
         avail_w = self.epw
         self.image(path, x=self.l_margin, w=avail_w, h=h)
         if caption:
