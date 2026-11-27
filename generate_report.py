@@ -16,11 +16,12 @@ class PDF(FPDF):
         if self.page_no() > 1:
             self.set_font('Helvetica', 'I', 8)
             self.set_text_color(120, 120, 120)
-            self.cell(0, 8, 'CS6886W Assignment 2 - MobileNet-v2 Compression', align='C')
+            self.cell(0, 8, 'CS6886W Assignment 2 - MobileNet-v2 Compression',
+                      align='C', new_x='LMARGIN', new_y='NEXT')
             self.ln(2)
             self.set_draw_color(180, 180, 180)
             self.line(self.l_margin, self.get_y(), self.w - self.r_margin, self.get_y())
-            self.ln(3)
+            self.ln(4)
             self.set_text_color(0, 0, 0)
 
     def footer(self):
@@ -58,12 +59,14 @@ class PDF(FPDF):
         self.cell(5, 5.5, chr(149))
         self.multi_cell(self.epw - indent - 5, 5.5, text)
 
-    def kv(self, key, value, indent=5):
+    def kv(self, key, value, indent=5, kw=68):
+        if self.will_page_break(11):
+            self.add_page()
         self.set_x(self.l_margin + indent)
         self.set_font('Helvetica', 'B', 10)
-        self.cell(55, 5.5, key + ':')
+        self.cell(kw, 5.5, key + ':')
         self.set_font('Helvetica', '', 10)
-        self.multi_cell(self.epw - indent - 55, 5.5, value)
+        self.multi_cell(self.epw - indent - kw, 5.5, value)
 
     def add_image_full(self, path, caption='', h=70):
         if not os.path.exists(path):
@@ -296,7 +299,7 @@ pdf.body(
 pdf.body('Layer breakdown for MobileNet-v2 (CIFAR-10):')
 layer_rows = [
     ('Initial Conv2d 3->32',          'Yes', 'Yes'),
-    ('Inverted Residual blocks (x17)','Yes (all Conv2d within each block)', 'Yes'),
+    ('Inverted Residual blocks (x17)', 'Yes (see sub-rows below)', 'Yes'),
     ('- expand 1x1 conv (t > 1)',     'Yes', 'Yes'),
     ('- depthwise 3x3 conv',          'Yes', 'Yes'),
     ('- project 1x1 conv',            'Yes', 'Yes'),
@@ -305,7 +308,7 @@ layer_rows = [
     ('BatchNorm layers (all)',         'No  (excluded)', 'No  (excluded)'),
     ('Total quantized layers',         '53  Conv2d + Linear', '53  Conv2d + Linear'),
 ]
-col_w = [80, 48, 48]
+col_w = [76, 47, 47]
 pdf.table_row(['Layer', 'Weight Quantized', 'Activation Quantized'], col_w, bold=True, fill=True)
 for i, row in enumerate(layer_rows):
     pdf.table_row(row, col_w, fill=(i % 2 == 0))
@@ -420,7 +423,7 @@ pc_path = f'{ASSETS}/parallel_coordinates.png'
 if os.path.exists(pc_path):
     pdf.ln(2)
     pdf.add_image_full(pc_path,
-                       caption='Figure 4: W&B Parallel Coordinates chart - 24-run quantization sweep.',
+                       caption='Figure 5: W&B Parallel Coordinates chart - 24-run quantization sweep.',
                        h=75)
 else:
     pdf.ln(2)
@@ -498,7 +501,7 @@ pdf.body(
     'Activations go from 6.42 MB to 1.61 MB.'
 )
 
-pdf.section('Q4(v) - Final Approximated Model Size After Compression', level=2)
+pdf.section('Q4(c) - Final Approximated Model Size After Compression', level=2)
 pdf.body('Total model size = weight size + activation size + storage overhead:')
 pdf.kv('Original model size',   '8.95 MB (weights) + 6.42 MB (activations) = 15.37 MB')
 pdf.kv('8-bit quantized size',  '2.24 MB (weights) + 1.61 MB (activations) + 0.001 MB (overhead) = 3.84 MB')
@@ -512,6 +515,7 @@ pdf.body(
 )
 
 # ── Q5: Reproducibility ───────────────────────────────────────────────────────
+pdf.add_page()
 pdf.section('Question 5 - Reproducibility and Repository')
 
 pdf.section('Q5(a) - Codebase Structure', level=2)
